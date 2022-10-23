@@ -138,3 +138,183 @@ neo4j:4.4.11-community # 指定版本号
 - 封装到客户端里面，可以自定义创建版本
 - 支持连接远程服务
 - 指定对应版本环境start，同样的使用方法
+
+## CQL
+
+### 简介
+
+Cypher语言，Cypher Query Language。专用查询语言、声明性模式匹配、SQL语法、简单可读
+
+| CQL命令  | 用法                         |
+| -------- | ---------------------------- |
+| CREATE   | 创建节点，关系和属性         |
+| MATCH    | 检索有关节点，关系和属性数据 |
+| RETURN   | 返回查询结果                 |
+| WHERE    | 提供条件过滤检索数据         |
+| DELETE   | 删除节点和关系               |
+| REMOVE   | 删除节点和关系的属性         |
+| ORDER BY | 排序检索数据                 |
+| SET      | 添加或更新标签               |
+
+小括号`()`表示节点，箭头`-><-`表示关系（带方向），`[:]`表示标签
+
+> 注意事项：使用中输入命令按shift+enter才能换行，Enter就会直接运行
+
+### 常用命令
+
+[官方文档](https://neo4j.com/docs/cypher-manual/3.5/clauses/)
+
+主要语法：
+
+```CQL
+%名称:%标签 {%属性名:'%属性值'}
+```
+
+1. LOAD CSV：必须在指定目录下
+
+```CQL
+// 在%NEO4J_HOME%\import目录
+load csv from 'file:///西游记.csv' as line
+create (:西游 {name:line[0],tail:line[1],label:line[3]})
+// (名称-一般为n:标签 {属性})
+```
+
+2. CREATE创建
+
+> CQL中节点的名称不能相同，如m，n
+
+```CQL
+//创建简单节点
+create (n)
+//创建多个节点
+create (n),(m)
+//创建带标签和属性的节点并返回节点
+create (n:person {name:'如来'}) return n
+
+//使用新节点创建关系
+CREATE (n:person {name:'杨戬'})-[r:师傅]->(m:person {name:'玉鼎真人'}) return
+type(r)
+//使用已知节点创建带属性的关系
+match (n:person {name:'沙僧'}),(m:person{name:'唐僧'})
+create (n)-[r:`师傅`{relation:'师傅'}]->(m) return r
+// 检索关系节点的详细信息
+match (n:person)-[r]-(m:person) return n,m
+
+// 创建全路径
+create p=(:person{name:'蛟魔王'})-[:义兄]->(:person{name:'牛魔王'})<-[:义兄]-
+(:person {name:'鹏魔王'}) return p
+```
+
+节点间关系使用`()-[]->()`表示
+
+3. MATCH查询：用于声明待匹配相应节点，可以指定标签（:后面带标签），可以指定属性（用{}括住键值对）
+
+   匹配一个节点的全部相关内容，使用`match p=()-[]->()`形式返回`p`即可
+
+4. RETURN返回：加入return才会显示在屏幕上，可以返回标签、属性——属性使用n.name，**id使用id(n)**
+
+5. WHERE子句：用于过滤MATCH的结果，使用and、or等关键字
+
+6. DELETE删除：用于删除**节点和关系**，有关系要**先删除关系**
+
+7. REMOVE删除：用于删除节点和关系的**属性、标签**
+
+```CQL
+//删除属性
+MATCH (n:role {name:"fox"}) remove n.age return n
+
+//创建节点
+CREATE (m:role:person {name:"fox666"})
+//删除标签
+match (m:role:person {name:"fox666"}) remove m:person return m
+```
+
+8. SET子句：向现有节点或关系添加新属性，更新属性值（使用`%属性名.%属性值=%设置值`）
+
+   ```CQL
+   MATCH (n:role {name:"fox"}) set n.age=32 return n
+   ```
+
+9. ORDER BY排序：后加排序参考，默认升序，可以加DESC子句降序排序（在后面加上即可）
+
+10. UNION子句：
+
+    ```CQL
+    MATCH (n:role) RETURN n.name as name
+    UNION
+    MATCH (m:person) RETURN m.name as name
+    MATCH (n:role) RETURN n.name as name
+    UNION all
+    MATCH (m:person) RETURN m.name as name
+    ```
+
+    - UNION：公共行组合并返回到一组结果中，**名称必须匹配**（列名称应该相同，列的数据类型应该相同——可以使用 as 子句进行重命名）**不重复**
+    - UNION ALL：**重复**、**名称必须匹配**
+
+11. LIMIT和SKIP子句：返回前几行，跳过前几行
+
+12. NULL值：未定义值
+
+13. IN操作符：用于**提供值的集合**——使用中括号
+
+    ```CQL
+    match (n:`西游`) where n.name in['孙悟空','唐僧'] return
+    id(n),n.name,n.tail,n.label
+    ```
+
+14. INDEX索引：提供属性上的索引，以提高应用程序的性能
+
+    ——为具有相同标签名称的所有节点的属性创建索引
+
+```CQL
+// 创建索引
+create index on :`西游` (name)
+// 删除索引
+drop index on :`西游` (name)
+```
+
+15. UNIQUE约束：创建唯一约束，不可以有相同的属性避免重复
+
+```CQL
+//创建唯一约束
+create constraint on (n:xiyou) assert n.name is unique
+//删除唯一约束
+drop constraint on (n:xiyou) assert n.name is unique
+```
+
+16. DISTINCT关键字：去重
+
+    用法：`return distinct(n.name)`
+
+其他命令可以自己在网站看下（待续）
+
+### 常用函数
+
+1. **字符串函数**：upper、lower、replace、substring
+2. **聚合**：count、max、min、sum、avg
+3. **关系函数**：startnode、endnode、id、type
+
+### neo4j-admin
+
+**都要先关闭服务！**
+
+- 数据库备份：
+
+  ```CQL
+  cd %NEO4J_HOME%/bin
+  neo4j install-service
+  //关闭neo4j
+  neo4j stop
+  //备份
+  neo4j-admin dump --database=graph.db --to=/neo4j/backup/graph_backup.dump
+  ```
+
+- 数据库恢复：
+
+  ```CQL
+  //数据导入
+  neo4j-admin load --from=/neo4j/backup/graph_backup.dump --database=graph.db --
+  force
+  //重启服务
+  neo4j start
+  ```
