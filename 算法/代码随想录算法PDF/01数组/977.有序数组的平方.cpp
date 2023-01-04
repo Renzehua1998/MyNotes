@@ -8,7 +8,21 @@
 class Solution {
 public:
     vector<int> sortedSquares(vector<int>& nums) {
-
+        int i = 0;
+        int j = nums.size() - 1;
+        int k = j;
+        vector<int> result(nums.size(), 0);
+        while (i <= j) {
+            if (nums[i] * nums[i] < nums[j] * nums[j]) {
+                result[k--] = nums[j] * nums[j];
+                j--;
+            }
+            else {
+                result[k--] = nums[i] * nums[i];
+                i++;
+            }
+        }
+        return result;
     }
 };
 // @lc code=end
