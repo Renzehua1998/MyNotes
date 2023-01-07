@@ -7,6 +7,8 @@
         "initializer_list": "cpp",
         "utility": "cpp",
         "ostream": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "deque": "cpp",
+        "string": "cpp"
     }
 }
