@@ -6,6 +6,7 @@
 
 // @lc code=start
 class Solution {
+#include <vector>
 public:
     vector<vector<int>> generateMatrix(int n) {
         // 重设边界法，直到两个边界交错，停止迭代。边界都是闭区间
