@@ -18,7 +18,22 @@
 class Solution {
 public:
     ListNode* removeElements(ListNode* head, int val) {
-
+        // 添加新头节点
+        ListNode* dummyHead = new ListNode(0);
+        dummyHead->next = head;
+        ListNode* cur = dummyHead;
+        while (cur->next != NULL) {
+            if (cur->next->val == val) {
+                ListNode* deal = cur->next;
+                cur->next = cur->next->next;
+                delete deal;
+            } else {
+                cur = cur->next;
+            }
+        }
+        head = dummyHead->next;
+        delete dummyHead;
+        return head;
     }
 };
 // @lc code=end
