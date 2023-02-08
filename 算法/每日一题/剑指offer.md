@@ -119,3 +119,192 @@ class MinStack:
         return self.B[-1]
 ```
 
+# 第 2 天 链表（简单）
+
+## 剑指 Offer 06. 从尾到头打印链表
+
+输入一个链表的头节点，从尾到头反过来返回每个节点的值（用数组返回）。
+
+---
+
+1. 使用递归回溯来反向
+2. 先放到栈，再pop
+3. 调reverse库
+4. 改变链表结构
+
+```c++
+class Solution {
+public:
+    vector<int> res;
+    void traversal(ListNode* root) {
+        if (!root) return;
+        traversal(root->next);
+        res.push_back(root->val);
+    }
+    vector<int> reversePrint(ListNode* head) {
+        traversal(head);
+        return res;
+    }
+};
+```
+
+```python
+class Solution:
+    def reversePrint(self, head: ListNode) -> List[int]:
+        def traversal(root):
+            if not root: return
+            traversal(root.next)
+            res.append(root.val)
+            
+        res = []
+        traversal(head)
+        return res
+```
+
+## 剑指 Offer 24. 反转链表
+
+定义一个函数，输入一个链表的头节点，反转该链表并输出反转后链表的头节点。
+
+---
+
+```c++
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode* pre = nullptr, *cur = head;
+        while (cur) {
+            ListNode* next = cur->next;
+            cur->next = pre;
+            pre = cur;
+            cur = next;
+        }
+        return pre;
+    }
+};
+```
+
+```python
+class Solution:
+    def reverseList(self, head: ListNode) -> ListNode:
+        pre = None
+        cur = head
+        while cur:
+            next = cur.next
+            cur.next = pre
+            pre = cur
+            cur = next
+        return pre
+```
+
+## 剑指 Offer 35*. 复杂链表的复制
+
+请实现 `copyRandomList` 函数，复制一个复杂链表。在复杂链表中，每个节点除了有一个 `next` 指针指向下一个节点，还有一个 `random` 指针指向链表中的任意节点或者 `null`。
+
+---
+
+- *深拷贝*
+- **本题难点：** 在复制链表的过程中构建新链表各节点的 `random` 引用指向。
+
+### 哈希表
+
+- （原：新）映射
+
+```c++
+class Solution {
+public:
+    Node* copyRandomList(Node* head) {
+        if (!head) return nullptr;
+        unordered_map<Node*, Node*> map;
+        Node* cur = head;
+        while (cur) {
+            map[cur] = new Node(cur->val);
+            cur = cur->next;
+        }
+        cur = head;
+        while (cur) {
+            map[cur]->next = map[cur->next];
+            map[cur]->random = map[cur->random];
+            cur = cur->next;
+        }
+        return map[head];
+    }
+};
+```
+
+```python
+class Solution:
+    def copyRandomList(self, head: 'Node') -> 'Node':
+        if not head: return None
+        dic = {}
+        cur = head
+        while cur:
+            dic[cur] = Node(cur.val)
+            cur = cur.next
+        cur = head
+        while cur:
+            dic[cur].next = dic.get(cur.next)
+            dic[cur].random = dic.get(cur.random)
+            cur = cur.next
+        return dic[head]
+```
+
+### 拼接 + 拆分
+
+```c++
+class Solution {
+public:
+    Node* copyRandomList(Node* head) {
+        if (!head) return nullptr;
+        Node* cur = head;
+        while (cur) {  // 构建串数组
+            Node* tmp = new Node(cur->val);
+            tmp->next = cur->next;
+            cur->next = tmp;
+            cur = tmp->next;
+        }
+        cur = head;
+        while (cur) {  // 填充random
+            if (cur->random) cur->next->random = cur->random->next;
+            cur = cur->next->next;
+        }
+        cur = head->next;
+        Node* pre = head, *res = head->next;
+        while (cur->next) {
+            pre->next = pre->next->next;
+            cur->next = cur->next->next;
+            pre = pre->next;
+            cur = cur->next;
+        }
+        pre->next = nullptr;
+        return res;
+    }
+};
+```
+
+```python
+class Solution:
+    def copyRandomList(self, head: 'Node') -> 'Node':
+        if not head: return None
+        cur = head
+        while cur:
+            tmp = Node(cur.val)
+            tmp.next = cur.next
+            cur.next = tmp
+            cur = tmp.next
+        cur = head
+        while cur:
+            if cur.random:
+                cur.next.random = cur.random.next
+            cur = cur.next.next
+        cur = head.next
+        res = cur
+        pre = head
+        while cur.next:
+            pre.next = pre.next.next
+            cur.next = cur.next.next
+            pre = pre.next
+            cur = cur.next
+        pre.next = None
+        return res
+```
+
