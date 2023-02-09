@@ -308,3 +308,106 @@ class Solution:
         return res
 ```
 
+# 第 3 天 字符串（简单）
+
+## 剑指 Offer 05. 替换空格
+
+请实现一个函数，把字符串 `s` 中的每个空格替换成"%20"。
+
+---
+
+- 先统计空格个数，给字符串扩容：加2×空格数
+- 双指针法从后往前，遇到空格就换成%20
+
+```c++
+class Solution {
+public:
+    string replaceSpace(string s) {
+        int count = 0; // 统计空格个数
+        int slen = s.size(); // 字符串原始长度
+        for (char c : s) {
+            if (c == ' ') {
+                count++;
+            }
+        }
+        s.resize(slen + count * 2);  // 重新分配空间
+        for (int i = s.size() - 1, j = slen - 1; i > j; i--,j--) {
+            if (s[j] == ' ') {
+                s[i] = '0';
+                s[--i] = '2';
+                s[--i] = '%';
+            } else {
+                s[i] = s[j];
+            }
+        }
+        return s;
+    }
+};
+```
+
+```python
+class Solution:
+    def replaceSpace(self, s: str) -> str:
+        count = s.count(' ')
+        res = list(s)
+        res.extend(' ' * count * 2)
+        slow = len(s) - 1
+        fast = len(res) - 1
+        while slow >= 0:
+            if s[slow] != ' ':
+                res[fast] = s[slow]
+                fast -= 1
+                slow -= 1
+            else:
+                res[fast - 2 : fast + 1] = '%20'
+                fast -= 3
+                slow -= 1
+        return ''.join(res) 
+```
+
+## 剑指 Offer 58 - II. 左旋转字符串
+
+字符串的左旋转操作是把字符串前面的若干个字符转移到字符串的尾部。请定义一个函数实现字符串左旋转操作的功能。比如，输入字符串"abcdefg"和数字2，该函数将返回左旋转两位得到的结果"cdefgab"。
+
+---
+
+1. 三次反转
+
+```c++
+class Solution {
+public:
+    string reverseLeftWords(string s, int n) {
+        reverse(s.begin(), s.begin() + n);
+        reverse(s.begin() + n, s.end());
+        reverse(s.begin(), s.end());
+        return s;
+    }
+};
+```
+
+```python
+class Solution:
+    def reverseLeftWords(self, s: str, n: int) -> str:
+        s = s[:n][::-1] + s[n:]
+        s = s[:n]+ s[n:][::-1]
+        s = s[::-1]
+        return s
+```
+
+2. 拼接+截取（一行）
+
+```c++
+class Solution {
+public:
+    string reverseLeftWords(string s, int n) {
+        return (s + s).substr(n, s.size());
+    }
+};
+```
+
+```python
+class Solution:
+    def reverseLeftWords(self, s: str, n: int) -> str:
+        return (s + s)[n : len(s) + n]
+```
+
