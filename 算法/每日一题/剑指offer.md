@@ -411,3 +411,124 @@ class Solution:
         return (s + s)[n : len(s) + n]
 ```
 
+# 第 4 天 查找算法（简单）
+
+## 剑指 Offer 03. 数组中重复的数字
+
+找出数组中重复的数字。
+ 在一个长度为 n 的数组 nums 里的所有数字都在 0～n-1 的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。请找出数组中任意一个重复的数字。
+
+---
+
+1. 一个萝卜一个坑：重头扫描数组，遇到下标为i的数字如果不是i的话，（假设为m),那么我们就拿与下标m的数字交换。在交换过程中，如果有重复的数字发生，那么终止返回ture
+
+   ```c++
+   class Solution {
+   public:
+       int findRepeatNumber(vector<int>& nums) {
+           for (int i = 0; i < nums.size(); i++) {
+               while (nums[i] != i) {
+                   if (nums[i] == nums[nums[i]]) return nums[i];
+                   int temp = nums[i];
+                   nums[i] = nums[temp];
+                   nums[temp] = temp;
+               }
+           }
+           return -1;
+       }
+   };
+   ```
+
+   ```python
+   class Solution:
+       def findRepeatNumber(self, nums: List[int]) -> int:
+           for i in range(len(nums)):
+               while nums[i] != i:
+                   if nums[i] == nums[nums[i]]:
+                       return nums[i]
+                   temp = nums[i]
+                   nums[i] = nums[temp]
+                   nums[temp] = temp
+           return -1
+   ```
+
+2. 哈希表（略）
+
+## 剑指 Offer 53* - I. 在排序数组中查找数字 I
+
+统计一个数字在排序数组中出现的次数。
+
+-- -
+
+- 二分查找（分布查左边界和右边界）
+
+```c++
+class Solution {
+public:
+    int binarySearch(vector<int>& nums, int target) {
+        int left = 0;
+        int right = nums.size() - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (nums[mid] <= target) left = mid + 1;
+            else right = mid - 1;
+        }
+        return left;
+    }
+    int search(vector<int>& nums, int target) {
+        return binarySearch(nums, target) - binarySearch(nums, target - 1);
+    }
+};
+```
+
+```python
+class Solution:
+    def search(self, nums: List[int], target: int) -> int:
+        def binarySearch(target):
+            left, right = 0, len(nums) - 1
+            while left <= right:
+                mid = (left + right) // 2
+                if nums[mid] <= target:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+            return left
+        return binarySearch(target) - binarySearch(target - 1)
+```
+
+## 剑指 Offer 53 - II. 0～n-1中缺失的数字
+
+一个长度为n-1的递增排序数组中的所有数字都是唯一的，并且每个数字都在范围0～n-1之内。在范围0～n-1内的n个数字中有且只有一个数字不在该数组中，请找出这个数字。
+
+---
+
+```c++
+class Solution {
+public:
+    int missingNumber(vector<int>& nums) {
+        int left = 0;
+        int right = nums.size() - 1;
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (nums[mid] == mid) left = mid + 1;
+            else right = mid - 1;
+        }
+        return left;
+    }
+};
+```
+
+```python
+class Solution:
+    def missingNumber(self, nums: List[int]) -> int:
+        left = 0
+        right = len(nums)
+        while left < right:
+            mid = (left + right) // 2
+            if nums[mid] == mid:
+                left = mid + 1
+            else:
+                right = mid
+        return left
+```
+
