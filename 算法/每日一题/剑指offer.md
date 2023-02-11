@@ -532,3 +532,134 @@ class Solution:
         return left
 ```
 
+# 第 5 天 查找算法（中等）
+
+## 剑指 Offer 04*. 二维数组中的查找
+
+在一个 n * m 的二维数组中，每一行都按照从左到右 **非递减** 的顺序排序，每一列都按照从上到下 **非递减** 的顺序排序。请完成一个高效的函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。
+
+---
+
+[参考](https://leetcode.cn/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof/solutions/95306/mian-shi-ti-04-er-wei-shu-zu-zhong-de-cha-zhao-zuo/?orderBy=most_votes)
+
+![Picture1.png](https://pic.leetcode-cn.com/6584ea93812d27112043d203ea90e4b0950117d45e0452d0c630fcb247fbc4af-Picture1.png)
+
+- 必须从左下角，因为万一matrix为空，matrix[0]是不存在的，无法找到j的下标——可以加条件判断
+
+```c++
+class Solution {
+public:
+    bool findNumberIn2DArray(vector<vector<int>>& matrix, int target) {
+        int i = matrix.size() - 1, j = 0;
+        while (i >= 0 && j < matrix[0].size()) {
+            if (matrix[i][j] > target) i--;
+            else if (matrix[i][j] < target) j++;
+            else return true;
+        }
+        return false;
+    }
+};
+```
+
+```python
+class Solution:
+    def findNumberIn2DArray(self, matrix: List[List[int]], target: int) -> bool:
+        i = len(matrix) - 1
+        j = 0
+        while i >= 0 and j < len(matrix[0]):
+            if matrix[i][j] > target:
+                i -= 1
+            elif matrix[i][j] < target:
+                j += 1
+            else:
+                return True
+        return False
+```
+
+## 剑指 Offer 11*. 旋转数组的最小数字
+
+把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。
+
+给你一个可能存在 **重复** 元素值的数组 `numbers` ，它原来是一个升序排列的数组，并按上述情形进行了一次旋转。请返回旋转数组的**最小元素**。例如，数组 `[3,4,5,1,2]` 为 `[1,2,3,4,5]` 的一次旋转，该数组的最小值为 1。 
+
+注意，数组 `[a[0], a[1], a[2], ..., a[n-1]]` 旋转一次 的结果为数组 `[a[n-1], a[0], a[1], a[2], ..., a[n-2]]` 。
+
+---
+
+- 二分查找，在mid等于right值时，让right自减缩小范围
+
+  ```c++
+  class Solution {
+  public:
+      int minArray(vector<int>& numbers) {
+          int left = 0, right = numbers.size() - 1;
+          while (left < right) {
+              int mid = (left + right) / 2;
+              if (numbers[mid] > numbers[right]) left = mid + 1;
+              else if (numbers[mid] < numbers[right]) right = mid;
+              else right--;
+          }
+          return numbers[left];
+      }
+  };
+  ```
+
+- 二分查找，在mid等于right值时，使用线性查找
+
+  ```python
+  class Solution:
+      def minArray(self, numbers: List[int]) -> int:
+          left = 0
+          right = len(numbers) - 1
+          while left < right:
+              mid = (left + right) // 2
+              if numbers[mid] < numbers[right]:
+                  right = mid
+              elif numbers[mid] > numbers[right]:
+                  left = mid + 1
+              else:
+                  return min(numbers[left:right])
+          return numbers[left]
+  ```
+
+## 剑指 Offer 50. 第一个只出现一次的字符
+
+在字符串 s 中找出第一个只出现一次的字符。如果没有，返回一个单空格。 s 只包含小写字母。
+
+---
+
+1. 无序哈希表（数组）+两次遍历字符串
+
+   ```c++
+   class Solution {
+   public:
+       char firstUniqChar(string s) {
+           vector<int> dic(26, 0);
+           for (int i = 0; i < s.size(); i++) {
+               dic[s[i] - 'a']++;
+           }
+           for (char& c : s) {
+               if (dic[c - 'a'] == 1) return c;
+           }
+           return ' ';
+       }
+   };
+   ```
+
+2. 有序哈希表+一次遍历字符串+一次遍历哈希表
+
+   ——Python 3.6 后，默认字典就是有序的
+
+   ```python
+   class Solution:
+       def firstUniqChar(self, s: str) -> str:
+           dic = {}
+           for c in s:
+               dic[c] = c not in dic
+           for k, v in dic.items():
+               if v: return k
+           return ' '
+   ```
+
+
+
