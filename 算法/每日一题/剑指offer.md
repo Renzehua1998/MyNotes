@@ -661,5 +661,173 @@ class Solution:
            return ' '
    ```
 
+# 第 6 天 搜索与回溯算法（简单）
 
+## 剑指 Offer 32 - I. 从上到下打印二叉树
+
+从上到下打印出二叉树的每个节点，同一层的节点按照从左到右的顺序打印。
+
+---
+
+层序遍历
+
+```c++
+class Solution {
+public:
+    vector<int> levelOrder(TreeNode* root) {
+        vector<int> res;
+        if (!root) return res;
+        queue<TreeNode*> que;
+        que.push(root);
+        while (!que.empty()) {
+            int size = que.size();
+            for (int i = 0; i < size; i++) {
+                TreeNode* node = que.front();
+                que.pop();
+                res.push_back(node->val);
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+            }
+        }
+        return res;
+    }
+};
+```
+
+```python
+class Solution:
+    def levelOrder(self, root: TreeNode) -> List[int]:
+        res = []
+        if not root: return res
+
+        from collections import deque
+        que = deque([root])
+        while que:
+            size = len(que)
+            for _ in range(size):
+                node = que.popleft()
+                res.append(node.val)
+                if node.left:
+                    que.append(node.left)
+                if node.right:
+                    que.append(node.right)
+        return res
+```
+
+## 剑指 Offer 32 - II. 从上到下打印二叉树 II
+
+从上到下按层打印二叉树，同一层的节点按从左到右的顺序打印，每一层打印到一行。
+
+---
+
+和上一题基本相同
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        vector<vector<int>> res;
+        if (!root) return res;
+        queue<TreeNode*> que;
+        que.push(root);
+        while (!que.empty()) {
+            int size = que.size();
+            vector<int> temp;
+            for (int i = 0; i < size; i++) {
+                TreeNode* node = que.front();
+                que.pop();
+                temp.push_back(node->val);
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+            }
+            res.push_back(temp);
+        }
+        return res;
+    }
+};
+```
+
+```python
+class Solution:
+    def levelOrder(self, root: TreeNode) -> List[List[int]]:
+        res = []
+        if not root: return res
+
+        from collections import deque
+        que = deque([root])
+        while que:
+            size = len(que)
+            temp = []
+            for _ in range(size):
+                node = que.popleft()
+                temp.append(node.val)
+                if node.left:
+                    que.append(node.left)
+                if node.right:
+                    que.append(node.right)
+            res.append(temp)
+        return res
+```
+
+## 剑指 Offer 32 - III. 从上到下打印二叉树 III
+
+请实现一个函数按照之字形顺序打印二叉树，即第一行按照从左到右的顺序打印，第二层按照从右到左的顺序打印，第三行再按照从左到右的顺序打印，其他行以此类推。
+
+---
+
+设置双端队列，判断奇偶层，奇数层正向添加，偶数层逆向添加
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        vector<vector<int>> res;
+        if (!root) return res;
+        queue<TreeNode*> que;
+        que.push(root);
+        while (!que.empty()) {
+            int size = que.size();
+            deque<int> temp;
+            for (int i = 0; i < size; i++) {
+                TreeNode* node = que.front();
+                que.pop();
+                if (res.size() % 2) {
+                    temp.push_front(node->val);
+                } else {
+                    temp.push_back(node->val);
+                }
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+            }
+            res.push_back(vector<int>(temp.begin(), temp.end()));
+        }
+        return res;
+    }
+};
+```
+
+```python
+class Solution:
+    def levelOrder(self, root: TreeNode) -> List[List[int]]:
+        res = []
+        if not root: return res
+
+        from collections import deque
+        que = deque([root])
+        while que:
+            size = len(que)
+            temp = deque()
+            for _ in range(size):
+                node = que.popleft()
+                if len(res) % 2:
+                    temp.appendleft(node.val)
+                else:
+                    temp.append(node.val)
+                if node.left:
+                    que.append(node.left)
+                if node.right:
+                    que.append(node.right)
+            res.append(list(temp))
+        return res
+```
 
