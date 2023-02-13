@@ -831,3 +831,113 @@ class Solution:
         return res
 ```
 
+# 第 7 天 搜索与回溯算法（简单）
+
+## 剑指 Offer 26*. 树的子结构
+
+输入两棵二叉树A和B，判断B是不是A的子结构。(约定空树不是任意一个树的子结构)
+
+B是A的子结构， 即 A中有出现和B相同的结构和节点值。
+
+---
+
+先序遍历：注意 根节点子结构 和 包含子结构 的不同
+
+- 根节点子结构：从根节点开始，A包含B（根节点必须相同或B为空）
+- 包含子结构：本题要求的，即根节点不一定相同，可以在左右子树中找到B的结构
+
+```c++
+class Solution {
+public:
+    bool rootSubStructure(TreeNode* A, TreeNode* B) {
+        if (!B) return true;
+        if (!A || A->val != B->val) return false;
+        return rootSubStructure(A->left, B->left) && rootSubStructure(A->right, B->right);
+    }
+    bool isSubStructure(TreeNode* A, TreeNode* B) {
+        if (!A || !B) return false;  // 特殊情况
+        return rootSubStructure(A, B) || isSubStructure(A->left, B) || isSubStructure(A->right, B);
+    }
+};
+```
+
+```python
+class Solution:
+    def rootSub(self, A: TreeNode, B: TreeNode) -> bool:
+        if not B:
+            return True
+        if not A or A.val != B.val:
+            return False
+        return self.rootSub(A.left, B.left) and self.rootSub(A.right, B.right)
+    def isSubStructure(self, A: TreeNode, B: TreeNode) -> bool:
+        if not A or not B:
+            return False
+        return self.rootSub(A, B) or self.isSubStructure(A.left, B) or self.isSubStructure(A.right, B)
+```
+
+## 剑指 Offer 27. 二叉树的镜像
+
+请完成一个函数，输入一个二叉树，该函数输出它的镜像。
+
+---
+
+- 后序遍历，交换左右节点即可
+
+```c++
+class Solution {
+public:
+    TreeNode* mirrorTree(TreeNode* root) {
+        if (!root) return root;
+        mirrorTree(root->left);
+        mirrorTree(root->right);
+        swap(root->left, root->right);
+        return root;
+    }
+};
+```
+
+```python
+class Solution:
+    def mirrorTree(self, root: TreeNode) -> TreeNode:
+        if not root:
+            return root
+        self.mirrorTree(root.left)
+        self.mirrorTree(root.right)
+        root.left, root.right = root.right, root.left
+        return root
+```
+
+## 剑指 Offer 28. 对称的二叉树
+
+请实现一个函数，用来判断一棵二叉树是不是对称的。如果一棵二叉树和它的镜像一样，那么它是对称的。
+
+---
+
+- 递归后序
+
+```c++
+class Solution {
+public:
+    bool compare(TreeNode* left, TreeNode* right) {
+        if (!left && !right) return true;
+        if (!left || !right) return false;
+        return left->val == right->val && compare(left->left, right->right) && compare(left->right, right->left);
+    }
+    bool isSymmetric(TreeNode* root) {
+        return compare(root, root);
+    }
+};
+```
+
+```python
+class Solution:
+    def isSymmetric(self, root: TreeNode) -> bool:
+        def compare(p, q):
+            if not p and not q:
+                return True
+            if not p or not q:
+                return False
+            return p.val == q.val and compare(p.left, q.right) and compare(p.right, q.left)
+        return compare(root, root)
+```
+
