@@ -941,3 +941,130 @@ class Solution:
         return compare(root, root)
 ```
 
+# 第 8 天 动态规划（简单）
+
+## 剑指 Offer 10- I. 斐波那契数列
+
+写一个函数，输入 `n` ，求斐波那契（Fibonacci）数列的第 `n` 项（即 `F(N)`）。斐波那契数列的定义如下：
+
+```
+F(0) = 0,   F(1) = 1
+F(N) = F(N - 1) + F(N - 2), 其中 N > 1.
+```
+
+斐波那契数列由 0 和 1 开始，之后的斐波那契数就是由之前的两数相加而得出。
+
+答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
+
+---
+
+```c++
+class Solution {
+public:
+    const int MOD = 1e9 + 7;
+    int fib(int n) {
+        if (n <= 1) return n;
+        int dp[2];
+        dp[0] = 0;
+        dp[1] = 1;
+        for (int i = 2; i < n + 1; i++) {
+            int sum = (dp[0] + dp[1]) % MOD;
+            dp[0] = dp[1];
+            dp[1] = sum;
+        }
+        return dp[1];
+    }
+};
+```
+
+```python
+class Solution:
+    def fib(self, n: int) -> int:
+        if n <= 1: return n
+        MOD = 10 ** 9 + 7
+        dp = [0, 1]
+        for i in range(2, n + 1):
+            sumNum = (dp[0] + dp[1]) % MOD
+            dp[0] = dp[1]
+            dp[1] = sumNum
+        return dp[1]
+```
+
+## 剑指 Offer 10- II. 青蛙跳台阶问题
+
+一只青蛙一次可以跳上1级台阶，也可以跳上2级台阶。求该青蛙跳上一个 `n` 级的台阶总共有多少种跳法。
+
+答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
+
+---
+
+- dp[i] = dp[i - 1] + dp[i - 2]
+- 初始条件：dp[1] = 1, dp[2] = 2
+- 规定dp[0] = 1
+
+```c++
+class Solution {
+public:
+    const int MOD = 1e9 + 7;
+    int numWays(int n) {
+        if (n <= 1) return 1;
+        vector<int> dp(n + 1, 0);
+        dp[1] = 1;
+        dp[2] = 2;
+        for (int i = 3; i <= n; i++) {
+            dp[i] = (dp[i - 1] + dp[i - 2]) % MOD;
+        }
+        return dp[n];
+    }
+};
+```
+
+```python
+class Solution:
+    def numWays(self, n: int) -> int:
+        MOD = 10 ** 9 + 7
+        if n <= 1: return 1
+        dp = [0] * (n + 1)
+        dp[1] = 1
+        dp[2] = 2
+        for i in range(3, n + 1):
+            dp[i] = (dp[i - 1] + dp[i - 2]) % MOD
+        return dp[n]
+```
+
+## 剑指 Offer 63. 股票的最大利润
+
+假设把某股票的价格按照时间先后顺序存储在数组中，请问买卖该股票一次可能获得的最大利润是多少？
+
+---
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n = prices.size();
+        if (n == 0) return 0;
+        vector<vector<int>> dp(n, vector<int>(2, 0));
+        dp[0][0] = -prices[0];
+        for (int i = 1; i < n; i++) {
+            dp[i][0] = max(dp[i - 1][0], -prices[i]);
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] + prices[i]);
+        }
+        return dp[n - 1][1];
+    }
+};
+```
+
+```python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        n = len(prices)
+        if n == 0: return 0
+        dp = [[0, 0] for _ in range(n)]
+        dp[0][0] = -prices[0]
+        for i in range(1, n):
+            dp[i][0] = max(dp[i - 1][0], - prices[i])
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] + prices[i])
+        return dp[-1][1]
+```
+
