@@ -1068,3 +1068,93 @@ class Solution:
         return dp[-1][1]
 ```
 
+# 第 9 天 动态规划（中等）
+
+## 剑指 Offer 42. 连续子数组的最大和
+
+输入一个整型数组，数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。
+
+要求时间复杂度为O(n)。
+
+---
+
+- dp[i]表示下标为i的数字之前（包括自己）的最大子数组和值
+- dp[i - 1] + nums[i] < nums[i]时：dp[i] = nums[i]；否则：dp[i] = dp[i - 1] + nums[i]
+- 初始值：dp[0] = nums[0]
+- 从前往后遍历，记录产生的最大值
+
+```c++
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        vector<int> dp(nums.size(), 0);
+        dp[0] = nums[0];
+        int maxNum = dp[0];
+        for (int i = 1; i < nums.size(); i++) {
+            if (dp[i - 1] + nums[i] < nums[i]) dp[i] = nums[i];
+            else dp[i] = dp[i - 1] + nums[i];
+            maxNum = max(maxNum, dp[i]);
+        }
+        return maxNum;
+    }
+};
+```
+
+```python
+class Solution:
+    def maxSubArray(self, nums: List[int]) -> int:
+        dp = [0] * (len(nums))
+        dp[0] = nums[0]
+        res = dp[0]
+        for i in range(1, len(nums)):
+            dp[i] = max(dp[i - 1] + nums[i], nums[i])
+            res = max(res, dp[i])
+        return res
+```
+
+## 剑指 Offer 47. 礼物的最大价值
+
+在一个 m*n 的棋盘的每一格都放有一个礼物，每个礼物都有一定的价值（价值大于 0）。你可以从棋盘的左上角开始拿格子里的礼物，并每次向右或者向下移动一格、直到到达棋盘的右下角。给定一个棋盘及其上面的礼物的价值，请计算你最多能拿到多少价值的礼物？
+
+---
+
+- `dp[i][j]`表示对应位置能获得的最大收益
+- `dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]) + grid[i][j]`
+- 初始化：`dp[0][0] = grid[0][0]`，最上行和最左列都是对应值累加
+- 从左到右、从上到下遍历
+
+——可以缩减空间，只保留行，加一行最左侧为0填补边界条件
+
+```c++
+class Solution {
+public:
+    int maxValue(vector<vector<int>>& grid) {
+        int m = grid.size();
+        if (m == 0) return 0;
+        int n = grid[0].size();
+        if (n == 0) return 0;
+        vector<int> dp(n + 1, 0);
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                dp[j + 1] = max(dp[j], dp[j + 1]) + grid[i][j];
+            }
+        }
+        return dp[n];
+    }
+};
+```
+
+```python
+class Solution:
+    def maxValue(self, grid: List[List[int]]) -> int:
+        m = len(grid)
+        if m == 0: return 0
+        n = len(grid[0])
+        if n == 0: return 0
+        dp = [0] * (n + 1)
+        for i in range(m):
+            for j in range(n):
+                dp[j + 1] = max(dp[j], dp[j + 1]) + grid[i][j]
+        return dp[n]
+```
+
