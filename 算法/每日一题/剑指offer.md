@@ -831,6 +831,333 @@ class Solution:
         return res
 ```
 
+# 第 7 天 搜索与回溯算法（简单）
+
+## 剑指 Offer 26*. 树的子结构
+
+输入两棵二叉树A和B，判断B是不是A的子结构。(约定空树不是任意一个树的子结构)
+
+B是A的子结构， 即 A中有出现和B相同的结构和节点值。
+
+---
+
+先序遍历：注意 根节点子结构 和 包含子结构 的不同
+
+- 根节点子结构：从根节点开始，A包含B（根节点必须相同或B为空）
+- 包含子结构：本题要求的，即根节点不一定相同，可以在左右子树中找到B的结构
+
+```c++
+class Solution {
+public:
+    bool rootSubStructure(TreeNode* A, TreeNode* B) {
+        if (!B) return true;
+        if (!A || A->val != B->val) return false;
+        return rootSubStructure(A->left, B->left) && rootSubStructure(A->right, B->right);
+    }
+    bool isSubStructure(TreeNode* A, TreeNode* B) {
+        if (!A || !B) return false;  // 特殊情况
+        return rootSubStructure(A, B) || isSubStructure(A->left, B) || isSubStructure(A->right, B);
+    }
+};
+```
+
+```python
+class Solution:
+    def rootSub(self, A: TreeNode, B: TreeNode) -> bool:
+        if not B:
+            return True
+        if not A or A.val != B.val:
+            return False
+        return self.rootSub(A.left, B.left) and self.rootSub(A.right, B.right)
+    def isSubStructure(self, A: TreeNode, B: TreeNode) -> bool:
+        if not A or not B:
+            return False
+        return self.rootSub(A, B) or self.isSubStructure(A.left, B) or self.isSubStructure(A.right, B)
+```
+
+## 剑指 Offer 27. 二叉树的镜像
+
+请完成一个函数，输入一个二叉树，该函数输出它的镜像。
+
+---
+
+- 后序遍历，交换左右节点即可
+
+```c++
+class Solution {
+public:
+    TreeNode* mirrorTree(TreeNode* root) {
+        if (!root) return root;
+        mirrorTree(root->left);
+        mirrorTree(root->right);
+        swap(root->left, root->right);
+        return root;
+    }
+};
+```
+
+```python
+class Solution:
+    def mirrorTree(self, root: TreeNode) -> TreeNode:
+        if not root:
+            return root
+        self.mirrorTree(root.left)
+        self.mirrorTree(root.right)
+        root.left, root.right = root.right, root.left
+        return root
+```
+
+## 剑指 Offer 28. 对称的二叉树
+
+请实现一个函数，用来判断一棵二叉树是不是对称的。如果一棵二叉树和它的镜像一样，那么它是对称的。
+
+---
+
+- 递归后序
+
+```c++
+class Solution {
+public:
+    bool compare(TreeNode* left, TreeNode* right) {
+        if (!left && !right) return true;
+        if (!left || !right) return false;
+        return left->val == right->val && compare(left->left, right->right) && compare(left->right, right->left);
+    }
+    bool isSymmetric(TreeNode* root) {
+        return compare(root, root);
+    }
+};
+```
+
+```python
+class Solution:
+    def isSymmetric(self, root: TreeNode) -> bool:
+        def compare(p, q):
+            if not p and not q:
+                return True
+            if not p or not q:
+                return False
+            return p.val == q.val and compare(p.left, q.right) and compare(p.right, q.left)
+        return compare(root, root)
+```
+
+# 第 8 天 动态规划（简单）
+
+## 剑指 Offer 10- I. 斐波那契数列
+
+写一个函数，输入 `n` ，求斐波那契（Fibonacci）数列的第 `n` 项（即 `F(N)`）。斐波那契数列的定义如下：
+
+```
+F(0) = 0,   F(1) = 1
+F(N) = F(N - 1) + F(N - 2), 其中 N > 1.
+```
+
+斐波那契数列由 0 和 1 开始，之后的斐波那契数就是由之前的两数相加而得出。
+
+答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
+
+---
+
+```c++
+class Solution {
+public:
+    const int MOD = 1e9 + 7;
+    int fib(int n) {
+        if (n <= 1) return n;
+        int dp[2];
+        dp[0] = 0;
+        dp[1] = 1;
+        for (int i = 2; i < n + 1; i++) {
+            int sum = (dp[0] + dp[1]) % MOD;
+            dp[0] = dp[1];
+            dp[1] = sum;
+        }
+        return dp[1];
+    }
+};
+```
+
+```python
+class Solution:
+    def fib(self, n: int) -> int:
+        if n <= 1: return n
+        MOD = 10 ** 9 + 7
+        dp = [0, 1]
+        for i in range(2, n + 1):
+            sumNum = (dp[0] + dp[1]) % MOD
+            dp[0] = dp[1]
+            dp[1] = sumNum
+        return dp[1]
+```
+
+## 剑指 Offer 10- II. 青蛙跳台阶问题
+
+一只青蛙一次可以跳上1级台阶，也可以跳上2级台阶。求该青蛙跳上一个 `n` 级的台阶总共有多少种跳法。
+
+答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
+
+---
+
+- dp[i] = dp[i - 1] + dp[i - 2]
+- 初始条件：dp[1] = 1, dp[2] = 2
+- 规定dp[0] = 1
+
+```c++
+class Solution {
+public:
+    const int MOD = 1e9 + 7;
+    int numWays(int n) {
+        if (n <= 1) return 1;
+        vector<int> dp(n + 1, 0);
+        dp[1] = 1;
+        dp[2] = 2;
+        for (int i = 3; i <= n; i++) {
+            dp[i] = (dp[i - 1] + dp[i - 2]) % MOD;
+        }
+        return dp[n];
+    }
+};
+```
+
+```python
+class Solution:
+    def numWays(self, n: int) -> int:
+        MOD = 10 ** 9 + 7
+        if n <= 1: return 1
+        dp = [0] * (n + 1)
+        dp[1] = 1
+        dp[2] = 2
+        for i in range(3, n + 1):
+            dp[i] = (dp[i - 1] + dp[i - 2]) % MOD
+        return dp[n]
+```
+
+## 剑指 Offer 63. 股票的最大利润
+
+假设把某股票的价格按照时间先后顺序存储在数组中，请问买卖该股票一次可能获得的最大利润是多少？
+
+---
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n = prices.size();
+        if (n == 0) return 0;
+        vector<vector<int>> dp(n, vector<int>(2, 0));
+        dp[0][0] = -prices[0];
+        for (int i = 1; i < n; i++) {
+            dp[i][0] = max(dp[i - 1][0], -prices[i]);
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] + prices[i]);
+        }
+        return dp[n - 1][1];
+    }
+};
+```
+
+```python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        n = len(prices)
+        if n == 0: return 0
+        dp = [[0, 0] for _ in range(n)]
+        dp[0][0] = -prices[0]
+        for i in range(1, n):
+            dp[i][0] = max(dp[i - 1][0], - prices[i])
+            dp[i][1] = max(dp[i - 1][1], dp[i - 1][0] + prices[i])
+        return dp[-1][1]
+```
+
+# 第 9 天 动态规划（中等）
+
+## 剑指 Offer 42. 连续子数组的最大和
+
+输入一个整型数组，数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。
+
+要求时间复杂度为O(n)。
+
+---
+
+- dp[i]表示下标为i的数字之前（包括自己）的最大子数组和值
+- dp[i - 1] + nums[i] < nums[i]时：dp[i] = nums[i]；否则：dp[i] = dp[i - 1] + nums[i]
+- 初始值：dp[0] = nums[0]
+- 从前往后遍历，记录产生的最大值
+
+```c++
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        vector<int> dp(nums.size(), 0);
+        dp[0] = nums[0];
+        int maxNum = dp[0];
+        for (int i = 1; i < nums.size(); i++) {
+            if (dp[i - 1] + nums[i] < nums[i]) dp[i] = nums[i];
+            else dp[i] = dp[i - 1] + nums[i];
+            maxNum = max(maxNum, dp[i]);
+        }
+        return maxNum;
+    }
+};
+```
+
+```python
+class Solution:
+    def maxSubArray(self, nums: List[int]) -> int:
+        dp = [0] * (len(nums))
+        dp[0] = nums[0]
+        res = dp[0]
+        for i in range(1, len(nums)):
+            dp[i] = max(dp[i - 1] + nums[i], nums[i])
+            res = max(res, dp[i])
+        return res
+```
+
+## 剑指 Offer 47. 礼物的最大价值
+
+在一个 m*n 的棋盘的每一格都放有一个礼物，每个礼物都有一定的价值（价值大于 0）。你可以从棋盘的左上角开始拿格子里的礼物，并每次向右或者向下移动一格、直到到达棋盘的右下角。给定一个棋盘及其上面的礼物的价值，请计算你最多能拿到多少价值的礼物？
+
+---
+
+- `dp[i][j]`表示对应位置能获得的最大收益
+- `dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]) + grid[i][j]`
+- 初始化：`dp[0][0] = grid[0][0]`，最上行和最左列都是对应值累加
+- 从左到右、从上到下遍历
+
+——可以缩减空间，只保留行，加一行最左侧为0填补边界条件
+
+```c++
+class Solution {
+public:
+    int maxValue(vector<vector<int>>& grid) {
+        int m = grid.size();
+        if (m == 0) return 0;
+        int n = grid[0].size();
+        if (n == 0) return 0;
+        vector<int> dp(n + 1, 0);
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                dp[j + 1] = max(dp[j], dp[j + 1]) + grid[i][j];
+            }
+        }
+        return dp[n];
+    }
+};
+```
+
+```python
+class Solution:
+    def maxValue(self, grid: List[List[int]]) -> int:
+        m = len(grid)
+        if m == 0: return 0
+        n = len(grid[0])
+        if n == 0: return 0
+        dp = [0] * (n + 1)
+        for i in range(m):
+            for j in range(n):
+                dp[j + 1] = max(dp[j], dp[j + 1]) + grid[i][j]
+        return dp[n]
+```
+
 # 第 10 天 动态规划（中等）
 
 ## 剑指 Offer 46. 把数字翻译成字符串
