@@ -1263,3 +1263,88 @@ class Solution:
         return res
 ```
 
+# 第 11 天 双指针（简单）
+
+## 剑指 Offer 18. 删除链表的节点
+
+给定单向链表的头指针和一个要删除的节点的值，定义一个函数删除该节点。
+
+返回删除后的链表的头节点。
+
+**注意：**此题对比原题有改动
+
+---
+
+```c++
+class Solution {
+public:
+    ListNode* deleteNode(ListNode* head, int val) {
+        ListNode* dummyHead = new ListNode(0); // 设置一个虚拟头结点
+        dummyHead->next = head;
+        ListNode* now = dummyHead;
+        while (now->next) {
+            if (now->next->val == val) {
+                now->next = now->next->next;
+            } else now = now->next;
+        }
+        return dummyHead->next;
+    }
+};
+```
+
+```python
+class Solution:
+    def deleteNode(self, head: ListNode, val: int) -> ListNode:
+        dummyHead = ListNode(next = head)
+        cur = dummyHead
+        while cur.next:
+            if cur.next.val == val:
+                cur.next = cur.next.next
+            else:
+                cur = cur.next
+        return dummyHead.next
+```
+
+## 剑指 Offer 22. 链表中倒数第k个节点
+
+输入一个链表，输出该链表中倒数第k个节点。为了符合大多数人的习惯，本题从1开始计数，即链表的尾节点是倒数第1个节点。
+
+例如，一个链表有 `6` 个节点，从头节点开始，它们的值依次是 `1、2、3、4、5、6`。这个链表的倒数第 `3` 个节点是值为 `4` 的节点。
+
+---
+
+```c++
+class Solution {
+public:
+    ListNode* getKthFromEnd(ListNode* head, int k) {
+        ListNode* dummyHead = new ListNode(0);
+        dummyHead->next = head;
+        ListNode* fast = dummyHead, *slow = dummyHead;
+        while (k && fast) {
+            fast = fast->next;
+            k--;
+        }
+        while (fast) {
+            fast = fast->next;
+            slow = slow->next;
+        }
+        return slow;
+    }
+};
+```
+
+```python
+class Solution:
+    def getKthFromEnd(self, head: ListNode, k: int) -> ListNode:
+        dummyHead = ListNode(next = head)
+        fast = dummyHead
+        slow = fast
+        while k:
+            fast = fast.next
+            k -= 1
+        while fast:
+            slow = slow.next
+            fast = fast.next
+        return slow
+```
+
