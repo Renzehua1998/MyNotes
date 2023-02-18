@@ -1348,3 +1348,98 @@ class Solution:
         return slow
 ```
 
+# 第 12 天 双指针（简单）
+
+## 剑指 Offer 25. 合并两个排序的链表
+
+输入两个递增排序的链表，合并这两个链表并使新链表中的节点仍然是递增排序的。
+
+---
+
+```c++
+class Solution {
+public:
+    ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+        ListNode* res = new ListNode(0);
+        ListNode* head = res;
+        while (l1 && l2) {
+            if (l1->val <= l2->val) {
+                head->next = l1;
+                l1 = l1->next;
+            } else {
+                head->next = l2;
+                l2 = l2->next;
+            }
+            head = head->next;
+        }
+        if (l1) head->next = l1;
+        else if (l2) head->next = l2;  // 后面剩下的
+        return res->next;
+    }
+};
+```
+
+```python
+class Solution:
+    def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
+        cur = dummy = ListNode(0)
+        while l1 and l2:
+            if l1.val <= l2.val:
+                cur.next = l1
+                l1 = l1.next
+            else:
+                cur.next = l2
+                l2 = l2.next
+            cur = cur.next
+        if l1:
+            cur.next = l1
+        else:
+            cur.next = l2
+        return dummy.next
+```
+
+## 剑指 Offer 52. 两个链表的第一个公共节点
+
+输入两个链表，找出它们的第一个公共节点。
+
+---
+
+```c++
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        ListNode* curA = headA;
+        ListNode* curB = headB;
+        while (curA != curB) {
+            if (curA) {
+                curA = curA->next;
+            } else {
+                curA = headB;
+            }
+            if (curB) {
+                curB = curB->next;
+            } else {
+                curB = headA;
+            }
+        }
+        return curA;
+    }
+};
+```
+
+```python
+class Solution:
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> ListNode:
+        curA, curB = headA, headB
+        while curA != curB:
+            if curA:
+                curA = curA.next
+            else:
+                curA = headB
+            if curB:
+                curB = curB.next
+            else:
+                curB = headA
+        return curA
+```
+
