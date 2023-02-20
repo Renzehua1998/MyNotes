@@ -1443,3 +1443,149 @@ class Solution:
         return curA
 ```
 
+# 第 13 天 双指针（简单）
+
+## 剑指 Offer 21. 调整数组顺序使奇数位于偶数前面
+
+输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数在数组的前半部分，所有偶数在数组的后半部分。
+
+---
+
+对向双指针
+
+```c++
+class Solution {
+public:
+    vector<int> exchange(vector<int>& nums) {
+        int left = 0, right = nums.size() - 1;
+        while (left < right) {
+            while (left < right && nums[left] % 2 == 1) left++;
+            while (left < right && nums[right] % 2 == 0) right--;
+            swap(nums[left], nums[right]);
+        }
+        return nums;
+    }
+};
+```
+
+同向双指针
+
+```python
+class Solution:
+    def exchange(self, nums: List[int]) -> List[int]:
+        slow, fast = 0, 0
+        while fast < len(nums):
+            if nums[fast] % 2:
+                nums[slow], nums[fast] = nums[fast], nums[slow]
+                slow += 1
+            fast += 1
+        return nums
+```
+
+## 剑指 Offer 57. 和为s的两个数字
+
+输入一个递增排序的数组和一个数字s，在数组中查找两个数，使得它们的和正好是s。如果有多对数字的和等于s，则输出任意一对即可。
+
+---
+
+```c++
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        int fast = nums.size() - 1, slow = 0;
+        while (slow < fast) {
+            if (nums[fast] + nums[slow] < target) slow++;
+            else if (nums[fast] + nums[slow] > target) fast--;
+            else return {nums[slow], nums[fast]};
+        }
+        return {0, 0};
+    }
+};
+```
+
+```python
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        l, r = 0, len(nums) - 1
+        while l < r:
+            if nums[l] + nums[r] < target:
+                l += 1
+            elif nums[l] + nums[r] > target:
+                r -= 1
+            else:
+                return [nums[l], nums[r]]
+        return [0, 0]
+```
+
+## 剑指 Offer 58 - I. 翻转单词顺序
+
+输入一个英文句子，翻转句子中单词的顺序，但单词内字符的顺序不变。为简单起见，标点符号和普通字母一样处理。例如输入字符串"I am a student. "，则输出"student. a am I"。
+
+---
+
+```c++
+class Solution {
+public:
+    void reverseString(string& s, int start, int end) {
+        for (int i = start, j = end; i < j; i++, j--) {
+            swap(s[i], s[j]);
+        }
+    }
+
+    string reverseWords(string s) {
+        int slow = 0;  // 去除空格
+        for (int i = 0; i < s.size(); i++) {
+            if (s[i] != ' ') {
+                if (slow != 0) s[slow++] = ' ';
+                while (s[i] != ' ' && i < s.size()) {
+                    s[slow++] = s[i++];
+                }
+            }
+        }
+        s.resize(slow);
+
+        reverseString(s, 0, s.size() - 1);
+        int start = 0;
+        for (int i = 0; i <= s.size(); i++) {
+            if (s[i] == ' ' || i == s.size()) {
+                reverseString(s, start, i - 1);
+                start = i + 1;
+            }
+        }
+        return s;
+    }
+};
+```
+
+```python
+# 掉包侠
+class Solution:
+    def reverseWords(self, s: str) -> str:
+        return ' '.join(s.split()[::-1])
+# C++类似方法
+class Solution:
+    def reverseWords(self, s: str) -> str:
+        s = list(s)
+        slow = 0
+        i = 0
+        while i < len(s):
+            if s[i] != ' ':
+                if slow != 0:
+                    s[slow] = ' '
+                    slow += 1
+                while i < len(s) and s[i] != ' ':
+                    s[slow] = s[i]
+                    slow += 1
+                    i += 1
+            else:
+                i += 1
+        s = s[:slow]
+        
+        s = s[::-1]
+        start = 0
+        for i in range(len(s) + 1):
+            if i == len(s) or s[i] == ' ':
+                s = s[:start] + s[start:i][::-1] + s[i:]
+                start = i + 1
+        return ''.join(s)
+```
