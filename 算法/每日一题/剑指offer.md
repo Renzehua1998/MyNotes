@@ -1589,3 +1589,106 @@ class Solution:
                 start = i + 1
         return ''.join(s)
 ```
+
+# 第 14 天 搜索与回溯算法（中等）
+
+## 剑指 Offer 12. 矩阵中的路径
+
+给定一个 `m x n` 二维字符网格 `board` 和一个字符串单词 `word` 。如果 `word` 存在于网格中，返回 `true` ；否则，返回 `false` 。
+
+单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
+
+ 
+
+例如，在下面的 3×4 的矩阵中包含单词 "ABCCED"（单词中的字母已标出）。
+
+![img](https://assets.leetcode.com/uploads/2020/11/04/word2.jpg)
+
+---
+
+```c++
+class Solution {
+public:
+    int m, n;
+    bool exist(vector<vector<char>>& board, string word) {
+        m = board.size(), n = board[0].size();
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (dfs(board, word, i, j, 0)) return true;
+            }
+        }
+        return false;
+    }
+    bool dfs(vector<vector<char>>& board, string& word, int i, int j, int k) {
+        if (i >= m || i < 0 || j >= n || j < 0 || board[i][j] != word[k]) return false;
+        if (k == word.size() - 1) return true;  // 终止条件
+        board[i][j] = '\0';
+        bool ans = dfs(board, word, i + 1, j ,k + 1) || dfs(board, word, i - 1, j ,k + 1) ||
+                   dfs(board, word, i, j + 1 ,k + 1) || dfs(board, word, i, j - 1 ,k + 1);
+        board[i][j] = word[k];  // 回溯
+        return ans;
+    }
+};
+```
+
+```python
+class Solution:
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        m, n = len(board), len(board[0])
+        def dfs(i, j, k):
+            if i < 0 or i >= m or j < 0 or j >= n or board[i][j] != word[k]:
+                return False
+            if k == len(word) - 1:
+                return True
+            board[i][j] = ''
+            ans = dfs(i + 1, j, k + 1) or dfs(i - 1, j, k + 1) or\
+                  dfs(i, j + 1, k + 1) or dfs(i, j - 1, k + 1)
+            board[i][j] = word[k]
+            return ans
+        
+        for i in range(m):
+            for j in range(n):
+                if dfs(i, j, 0):
+                    return True
+        return False
+```
+
+## 面试题13. 机器人的运动范围
+
+地上有一个m行n列的方格，从坐标 `[0,0]` 到坐标 `[m-1,n-1]` 。一个机器人从坐标 `[0, 0] `的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？
+
+---
+
+```c++
+class Solution {
+public:
+    int row, col;
+    int movingCount(int m, int n, int k) {
+        row = m, col = n;
+        vector<vector<bool>> visited(m, vector<bool>(n, 0));
+        return dfs(0, 0, k, visited);
+    }
+    int dfs(int i, int j, int k, vector<vector<bool>>& visited) {
+        if (i >= row || j >= col || visited[i][j]) return 0;
+        int sum = i / 10 + i % 10 + j / 10 + j % 10;
+        if (sum > k) return 0;
+        visited[i][j] = true;
+        return 1 + dfs(i + 1, j, k, visited) + dfs(i, j + 1, k, visited);
+    }
+};
+```
+
+```python
+class Solution:
+    def movingCount(self, m: int, n: int, k: int) -> int:
+        visited = [[False] * n for _ in range(m)]
+        def dfs(i, j, k):
+            if i >= m or j >= n or visited[i][j]:
+                return 0
+            sumNum = i // 10 + i % 10 + j // 10 + j % 10
+            if sumNum > k: return 0
+            visited[i][j] = True
+            return 1 + dfs(i + 1, j, k) + dfs(i, j + 1, k)
+        return dfs(0, 0, k)
+```
+
