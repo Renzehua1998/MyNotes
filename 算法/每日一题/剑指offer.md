@@ -1589,3 +1589,274 @@ class Solution:
                 start = i + 1
         return ''.join(s)
 ```
+
+# 第 14 天 搜索与回溯算法（中等）
+
+## 剑指 Offer 12. 矩阵中的路径
+
+给定一个 `m x n` 二维字符网格 `board` 和一个字符串单词 `word` 。如果 `word` 存在于网格中，返回 `true` ；否则，返回 `false` 。
+
+单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
+
+ 
+
+例如，在下面的 3×4 的矩阵中包含单词 "ABCCED"（单词中的字母已标出）。
+
+![img](https://assets.leetcode.com/uploads/2020/11/04/word2.jpg)
+
+---
+
+```c++
+class Solution {
+public:
+    int m, n;
+    bool exist(vector<vector<char>>& board, string word) {
+        m = board.size(), n = board[0].size();
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (dfs(board, word, i, j, 0)) return true;
+            }
+        }
+        return false;
+    }
+    bool dfs(vector<vector<char>>& board, string& word, int i, int j, int k) {
+        if (i >= m || i < 0 || j >= n || j < 0 || board[i][j] != word[k]) return false;
+        if (k == word.size() - 1) return true;  // 终止条件
+        board[i][j] = '\0';
+        bool ans = dfs(board, word, i + 1, j ,k + 1) || dfs(board, word, i - 1, j ,k + 1) ||
+                   dfs(board, word, i, j + 1 ,k + 1) || dfs(board, word, i, j - 1 ,k + 1);
+        board[i][j] = word[k];  // 回溯
+        return ans;
+    }
+};
+```
+
+```python
+class Solution:
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        m, n = len(board), len(board[0])
+        def dfs(i, j, k):
+            if i < 0 or i >= m or j < 0 or j >= n or board[i][j] != word[k]:
+                return False
+            if k == len(word) - 1:
+                return True
+            board[i][j] = ''
+            ans = dfs(i + 1, j, k + 1) or dfs(i - 1, j, k + 1) or\
+                  dfs(i, j + 1, k + 1) or dfs(i, j - 1, k + 1)
+            board[i][j] = word[k]
+            return ans
+        
+        for i in range(m):
+            for j in range(n):
+                if dfs(i, j, 0):
+                    return True
+        return False
+```
+
+## 面试题13*. 机器人的运动范围
+
+地上有一个m行n列的方格，从坐标 `[0,0]` 到坐标 `[m-1,n-1]` 。一个机器人从坐标 `[0, 0] `的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？
+
+---
+
+```c++
+class Solution {
+public:
+    int row, col;
+    int movingCount(int m, int n, int k) {
+        row = m, col = n;
+        vector<vector<bool>> visited(m, vector<bool>(n, 0));
+        return dfs(0, 0, k, visited);
+    }
+    int dfs(int i, int j, int k, vector<vector<bool>>& visited) {
+        if (i >= row || j >= col || visited[i][j]) return 0;
+        int sum = i / 10 + i % 10 + j / 10 + j % 10;
+        if (sum > k) return 0;
+        visited[i][j] = true;
+        return 1 + dfs(i + 1, j, k, visited) + dfs(i, j + 1, k, visited);
+    }
+};
+```
+
+```python
+class Solution:
+    def movingCount(self, m: int, n: int, k: int) -> int:
+        visited = [[False] * n for _ in range(m)]
+        def dfs(i, j, k):
+            if i >= m or j >= n or visited[i][j]:
+                return 0
+            sumNum = i // 10 + i % 10 + j // 10 + j % 10
+            if sumNum > k: return 0
+            visited[i][j] = True
+            return 1 + dfs(i + 1, j, k) + dfs(i, j + 1, k)
+        return dfs(0, 0, k)
+```
+
+# 第 15 天 搜索与回溯算法（中等）
+
+## 剑指 Offer 34. 二叉树中和为某一值的路径
+
+给你二叉树的根节点 `root` 和一个整数目标和 `targetSum` ，找出所有 **从根节点到叶子节点** 路径总和等于给定目标和的路径。
+
+**叶子节点** 是指没有子节点的节点。
+
+---
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> res;
+    vector<int> path;
+    vector<vector<int>> pathSum(TreeNode* root, int target) {
+        backtracking(root, target);
+        return res;
+    }
+    void backtracking(TreeNode* root, int target) {
+        if (!root) return ;
+        path.push_back(root->val);
+        if (!root->left && !root->right && root->val == target) res.push_back(path);
+        if (root->left) {
+            backtracking(root->left, target - root->val);
+            path.pop_back();  // 回溯
+        }
+        if (root->right) {
+            backtracking(root->right, target - root->val);
+            path.pop_back();  // 回溯
+        }
+    }
+};
+```
+
+```python
+class Solution:
+    def pathSum(self, root: TreeNode, target: int) -> List[List[int]]:
+        res = []
+        path = []
+
+        def dfs(root, targetSum):
+            if not root: return
+            path.append(root.val)
+            if not root.left and not root.right and targetSum == root.val:
+                res.append(path[:])
+            if root.left:
+                dfs(root.left, targetSum - root.val)
+                path.pop()
+            if root.right:
+                dfs(root.right, targetSum - root.val)
+                path.pop()
+        
+        dfs(root, target)
+        return res
+```
+
+## 剑指 Offer 36*. 二叉搜索树与双向链表
+
+输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的循环双向链表。要求不能创建任何新的节点，只能调整树中节点指针的指向。
+
+---
+
+```c++
+class Solution {
+private:
+    Node* head, *pre;
+    void backstracking(Node* root) {
+        if (!root) return ;
+        backstracking(root->left);
+        if (!pre) {
+            head = root;
+            pre = root;
+        } else {
+            pre->right = root;
+            root->left = pre;
+            pre = root;
+        }
+        backstracking(root->right);
+    }
+public:
+    Node* treeToDoublyList(Node* root) {
+        if (!root) return nullptr;
+        backstracking(root);
+        head->left = pre;
+        pre->right = head;
+        return head;
+    }
+};
+```
+
+```python
+class Solution:
+    def treeToDoublyList(self, root: 'Node') -> 'Node':
+        head, pre = None, None
+        def backstracking(root):
+            nonlocal head, pre
+            if not root: return
+            backstracking(root.left)
+            if not pre:
+                pre = root
+                head = root
+            else:
+                pre.right = root
+                root.left = pre
+                pre = root
+            backstracking(root.right)
+
+        if not root: return None
+        backstracking(root)
+        head.left = pre
+        pre.right = head
+        return head
+```
+
+## 剑指 Offer 54. 二叉搜索树的第k大节点
+
+给定一棵二叉搜索树，请找出其中第 `k` 大的节点的值。
+
+---
+
+```c++
+class Solution {
+public:
+    int res, kn;
+    void backstracking(TreeNode* root) {
+        if (!root) return ;
+        backstracking(root->right);
+        if (kn == 0) return ;
+        if (kn == 1) {
+            res = root->val;
+        }
+        kn--;
+        backstracking(root->left);
+    }
+    int kthLargest(TreeNode* root, int k) {
+        kn = k;
+        backstracking(root);
+        return res;
+    }
+};
+```
+
+```python
+class Solution:
+    def kthLargest(self, root: TreeNode, k: int) -> int:
+        def backstracking(root):
+            nonlocal res, k
+            if not root: return
+            backstracking(root.right)
+            k -= 1
+            if k == 0:
+                res = root.val
+                return
+            backstracking(root.left)
+        res = 0
+        backstracking(root)
+        return res
+```
+
+# 第 16 天 排序（简单）
+
+## 面试题45*. 把数组排成最小的数
+
+输入一个非负整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。
+
+---
+
