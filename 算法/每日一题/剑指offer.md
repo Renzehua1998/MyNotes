@@ -1653,7 +1653,7 @@ class Solution:
         return False
 ```
 
-## 面试题13. 机器人的运动范围
+## 面试题13*. 机器人的运动范围
 
 地上有一个m行n列的方格，从坐标 `[0,0]` 到坐标 `[m-1,n-1]` 。一个机器人从坐标 `[0, 0] `的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？
 
@@ -1691,4 +1691,172 @@ class Solution:
             return 1 + dfs(i + 1, j, k) + dfs(i, j + 1, k)
         return dfs(0, 0, k)
 ```
+
+# 第 15 天 搜索与回溯算法（中等）
+
+## 剑指 Offer 34. 二叉树中和为某一值的路径
+
+给你二叉树的根节点 `root` 和一个整数目标和 `targetSum` ，找出所有 **从根节点到叶子节点** 路径总和等于给定目标和的路径。
+
+**叶子节点** 是指没有子节点的节点。
+
+---
+
+```c++
+class Solution {
+public:
+    vector<vector<int>> res;
+    vector<int> path;
+    vector<vector<int>> pathSum(TreeNode* root, int target) {
+        backtracking(root, target);
+        return res;
+    }
+    void backtracking(TreeNode* root, int target) {
+        if (!root) return ;
+        path.push_back(root->val);
+        if (!root->left && !root->right && root->val == target) res.push_back(path);
+        if (root->left) {
+            backtracking(root->left, target - root->val);
+            path.pop_back();  // 回溯
+        }
+        if (root->right) {
+            backtracking(root->right, target - root->val);
+            path.pop_back();  // 回溯
+        }
+    }
+};
+```
+
+```python
+class Solution:
+    def pathSum(self, root: TreeNode, target: int) -> List[List[int]]:
+        res = []
+        path = []
+
+        def dfs(root, targetSum):
+            if not root: return
+            path.append(root.val)
+            if not root.left and not root.right and targetSum == root.val:
+                res.append(path[:])
+            if root.left:
+                dfs(root.left, targetSum - root.val)
+                path.pop()
+            if root.right:
+                dfs(root.right, targetSum - root.val)
+                path.pop()
+        
+        dfs(root, target)
+        return res
+```
+
+## 剑指 Offer 36*. 二叉搜索树与双向链表
+
+输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的循环双向链表。要求不能创建任何新的节点，只能调整树中节点指针的指向。
+
+---
+
+```c++
+class Solution {
+private:
+    Node* head, *pre;
+    void backstracking(Node* root) {
+        if (!root) return ;
+        backstracking(root->left);
+        if (!pre) {
+            head = root;
+            pre = root;
+        } else {
+            pre->right = root;
+            root->left = pre;
+            pre = root;
+        }
+        backstracking(root->right);
+    }
+public:
+    Node* treeToDoublyList(Node* root) {
+        if (!root) return nullptr;
+        backstracking(root);
+        head->left = pre;
+        pre->right = head;
+        return head;
+    }
+};
+```
+
+```python
+class Solution:
+    def treeToDoublyList(self, root: 'Node') -> 'Node':
+        head, pre = None, None
+        def backstracking(root):
+            nonlocal head, pre
+            if not root: return
+            backstracking(root.left)
+            if not pre:
+                pre = root
+                head = root
+            else:
+                pre.right = root
+                root.left = pre
+                pre = root
+            backstracking(root.right)
+
+        if not root: return None
+        backstracking(root)
+        head.left = pre
+        pre.right = head
+        return head
+```
+
+## 剑指 Offer 54. 二叉搜索树的第k大节点
+
+给定一棵二叉搜索树，请找出其中第 `k` 大的节点的值。
+
+---
+
+```c++
+class Solution {
+public:
+    int res, kn;
+    void backstracking(TreeNode* root) {
+        if (!root) return ;
+        backstracking(root->right);
+        if (kn == 0) return ;
+        if (kn == 1) {
+            res = root->val;
+        }
+        kn--;
+        backstracking(root->left);
+    }
+    int kthLargest(TreeNode* root, int k) {
+        kn = k;
+        backstracking(root);
+        return res;
+    }
+};
+```
+
+```python
+class Solution:
+    def kthLargest(self, root: TreeNode, k: int) -> int:
+        def backstracking(root):
+            nonlocal res, k
+            if not root: return
+            backstracking(root.right)
+            k -= 1
+            if k == 0:
+                res = root.val
+                return
+            backstracking(root.left)
+        res = 0
+        backstracking(root)
+        return res
+```
+
+# 第 16 天 排序（简单）
+
+## 面试题45*. 把数组排成最小的数
+
+输入一个非负整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。
+
+---
 
