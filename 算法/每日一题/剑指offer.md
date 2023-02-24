@@ -1860,3 +1860,124 @@ class Solution:
 
 ---
 
+### 自己编写排序
+
+```c++
+class Solution {
+public:
+    string minNumber(vector<int>& nums) {
+        vector<string> strs;
+        string res;
+        for (int i : nums) {
+            strs.push_back(to_string(i));
+        }
+        quickSort(strs, 0, strs.size() - 1);
+        for (string& s : strs) {
+            res.append(s);
+        }
+        return res;
+    }
+    void quickSort(vector<string>& strs, int l, int r) {
+        if (l >= r) return ;
+        int i = l, j = r;
+        while (i < j) {
+            while (strs[j] + strs[l] >= strs[l] + strs[j] && i < j) j--;
+            while (strs[i] + strs[l] <= strs[l] + strs[i] && i < j) i++;
+            swap(strs[i], strs[j]);
+        }
+        swap(strs[i], strs[l]);
+        quickSort(strs, l, i - 1);
+        quickSort(strs, i + 1, r);
+    }
+};
+```
+
+### 调库
+
+```python
+class Solution:
+    def minNumber(self, nums: List[int]) -> str:
+        def rule(x, y) -> int:
+            a, b = x + y, y + x
+            if a > b: return 1
+            elif a < b: return -1
+            else: return 0
+
+        strs = [str(i) for i in nums]
+        strs.sort(key = functools.cmp_to_key(rule))
+        return ''.join(strs)
+```
+
+## 面试题61. 扑克牌中的顺子
+
+从**若干副扑克牌**中随机抽 `5` 张牌，判断是不是一个顺子，即这5张牌是不是连续的。2～10为数字本身，A为1，J为11，Q为12，K为13，而大、小王为 0 ，可以看成任意数字。A 不能视为 14。
+
+---
+
+![61](剑指offer/image-20230224115347960.png)
+
+### 哈希表
+
+```c++
+class Solution {
+public:
+    bool isStraight(vector<int>& nums) {
+        int s[14];
+        memset(s,0,sizeof(int) * 14);
+        int mi = 14, ma = 0;
+        for (int i : nums) {
+            if (i == 0) continue;
+            ma = max(ma, i);
+            mi = min(mi, i);
+            if (s[i]) return false;
+            s[i] = 1;
+        }
+        return ma - mi < 5;
+    }
+};
+```
+
+```python
+class Solution:
+    def isStraight(self, nums: List[int]) -> bool:
+        s = [0] * 14
+        mi, ma = 14, 0
+        for i in nums:
+            if i == 0: continue
+            mi = min(mi, i)
+            ma = max(ma, i)
+            if (s[i]): return False
+            s[i] = 1
+        return ma - mi < 5
+```
+
+### 排序
+
+```c++
+class Solution {
+public:
+    bool isStraight(vector<int>& nums) {
+        int joker = 0;
+        sort(nums.begin(), nums.end());
+        for (int i = 0; i < 4; i++) {
+            if (nums[i] == 0) joker++;
+            else if (nums[i] == nums[i + 1]) return false;
+        }
+        return nums[4] - nums[joker] < 5;
+    }
+};
+```
+
+```python
+class Solution:
+    def isStraight(self, nums: List[int]) -> bool:
+        joker = 0
+        nums.sort()
+        for i in range(4):
+            if nums[i] == 0:
+                joker += 1
+            elif nums[i] == nums[i + 1]:
+                return False
+        return nums[4] - nums[joker] < 5
+```
+
