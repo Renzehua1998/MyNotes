@@ -1981,3 +1981,208 @@ class Solution:
         return nums[4] - nums[joker] < 5
 ```
 
+# 第 17 天 排序（中等）
+
+## 剑指 Offer 40*. 最小的k个数
+
+输入整数数组 `arr` ，找出其中最小的 `k` 个数。例如，输入4、5、1、6、2、7、3、8这8个数字，则最小的4个数字是1、2、3、4。
+
+---
+
+### 类快排
+
+- 有前k个最小（分界值刚好为k下标直接返回即可）
+
+```c++
+class Solution {
+public:
+    vector<int> getLeastNumbers(vector<int>& arr, int k) {
+        if (k >= arr.size()) return arr;
+        return quickSort(arr, k, 0, arr.size() - 1);
+    }
+    vector<int> quickSort(vector<int>& arr, int k, int l, int r) {
+        int i = l, j = r;
+        while (i < j) {
+            while (i < j && arr[j] >= arr[l]) j--;
+            while (i < j && arr[i] <= arr[l]) i++;
+            swap(arr[i], arr[j]);
+        }
+        swap(arr[i], arr[l]);
+        if (i < k) return quickSort(arr, k, i + 1, r);
+        if (i > k) return quickSort(arr, k, l, i - 1);
+        vector<int> res;
+        res.assign(arr.begin(), arr.begin() + k);
+        return res;
+    }
+};
+```
+
+```python
+class Solution:
+    def getLeastNumbers(self, arr: List[int], k: int) -> List[int]:
+        if k >= len(arr): return arr
+        def quickSort(l, r):
+            i, j = l, r
+            while i < j:
+                while i < j and arr[j] >= arr[l]: j -= 1
+                while i < j and arr[i] <= arr[l]: i += 1
+                arr[i], arr[j] = arr[j], arr[i]
+            arr[i], arr[l] = arr[l], arr[i]
+            if i < k:
+                return quickSort(i + 1, r)
+            if i > k:
+                return quickSort(l, i - 1)
+            return arr[:k]
+        return quickSort(0, len(arr) - 1)
+```
+
+### 堆方法
+
+- 插入大小为k的大根堆，剩下的如果小于堆顶，pop堆顶再push这个值
+
+```c++
+class Solution {
+public:
+    vector<int> getLeastNumbers(vector<int>& arr, int k) {
+        vector<int> res(k, 0);
+        if (k == 0) return res;  // 特殊情况
+        priority_queue<int> que;
+        for (int i = 0; i < k; i++) {
+            que.push(arr[i]);
+        }
+        for (int i = k; i < arr.size(); i++) {
+            if (arr[i] < que.top()) {
+                que.pop();
+                que.push(arr[i]);
+            }
+        }
+        for (int i = 0; i < k; i++) {
+            res[i] = que.top();
+            que.pop();
+        }
+        return res;
+    }
+};
+```
+
+```python
+class Solution:
+    def getLeastNumbers(self, arr: List[int], k: int) -> List[int]:
+        if k == 0:
+            return list()
+
+        hp = [-x for x in arr[:k]]
+        heapq.heapify(hp)
+        for i in range(k, len(arr)):
+            if -hp[0] > arr[i]:
+                heapq.heappop(hp)
+                heapq.heappush(hp, -arr[i])
+        ans = [-x for x in hp]
+        return ans
+```
+
+——python只有小根堆，所以需要取反后再操作
+
+## 剑指 Offer 41*. 数据流中的中位数
+
+如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。
+
+例如，
+
+[2,3,4] 的中位数是 3
+
+[2,3] 的中位数是 (2 + 3) / 2 = 2.5
+
+设计一个支持以下两种操作的数据结构：
+
+- void addNum(int num) - 从数据流中添加一个整数到数据结构中。
+- double findMedian() - 返回目前所有元素的中位数。
+
+---
+
+### 堆方法
+
+```c++
+class MedianFinder {
+public:
+    priority_queue<int, vector<int>, less<int>> queMin;
+    priority_queue<int, vector<int>, greater<int>> queMax;
+
+    MedianFinder() {
+
+    }
+    
+    void addNum(int num) {
+        if (queMin.empty() || num < queMin.top()) {
+            queMin.push(num);
+            if (queMin.size() > queMax.size() + 1) {
+                queMax.push(queMin.top());
+                queMin.pop();
+            }
+        } else {
+            queMax.push(num);
+            if (queMin.size() < queMax.size()) {
+                queMin.push(queMax.top());
+                queMax.pop();
+            }
+        }
+
+    }
+    
+    double findMedian() {
+        if (queMin.size() > queMax.size()) return queMin.top();
+        return (queMax.top() + queMin.top()) / 2.0;
+    }
+};
+
+```
+
+### 有序集合 +双指针
+
+```python
+from sortedcontainers import SortedList
+
+class MedianFinder:
+
+    def __init__(self):
+        self.nums = SortedList()
+        self.left = self.right = None
+        self.left_value = self.right_value = None
+
+    def addNum(self, num: int) -> None:
+        nums_ = self.nums
+
+        n = len(nums_)
+        nums_.add(num)
+
+        if n == 0:
+            self.left = self.right = 0
+        else:
+            # 模拟双指针，当 num 小于 self.left 或 self.right 指向的元素时，num 的加入会导致对应指针向右移动一个位置
+            if num < self.left_value:
+                self.left += 1
+            if num < self.right_value:
+                self.right += 1
+
+            if n & 1:
+                if num < self.left_value:
+                    self.left -= 1
+                else:
+                    self.right += 1
+            else:
+                if self.left_value < num < self.right_value:
+                    self.left += 1
+                    self.right -= 1
+                elif num >= self.right_value:
+                    self.left += 1
+                else:
+                    self.right -= 1
+                    self.left = self.right
+        
+        self.left_value = nums_[self.left]
+        self.right_value = nums_[self.right]
+
+    def findMedian(self) -> float:
+        return (self.left_value + self.right_value) / 2
+```
+
