@@ -2186,3 +2186,95 @@ class MedianFinder:
         return (self.left_value + self.right_value) / 2
 ```
 
+# 第 18 天 搜索与回溯算法（中等）
+
+## 剑指 Offer 55 - I. 二叉树的深度
+
+输入一棵二叉树的根节点，求该树的深度。从根节点到叶节点依次经过的节点（含根、叶节点）形成树的一条路径，最长路径的长度为树的深度。
+
+例如：
+
+给定二叉树 `[3,9,20,null,null,15,7]`，
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+返回它的最大深度 3 。
+
+---
+
+### 递归
+
+```c++
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if (!root) return 0;
+        return 1 + max(maxDepth(root->left), maxDepth(root->right));
+    }
+};
+```
+
+### 迭代
+
+```python
+class Solution:
+    def maxDepth(self, root: Optional[TreeNode]) -> int:
+        from collections import deque
+        que = deque([])
+        if root:
+            que.append(root)
+        depth = 0
+        while que:
+            size = len(que)
+            for i in range(size):
+                node = que.popleft()
+                if node.left:
+                    que.append(node.left)
+                if node.right:
+                    que.append(node.right)
+            depth += 1
+        return depth
+```
+
+## 剑指 Offer 55 - II. 平衡二叉树
+
+输入一棵二叉树的根节点，判断该树是不是平衡二叉树。如果某二叉树中任意节点的左右子树的深度相差不超过1，那么它就是一棵平衡二叉树。
+
+---
+
+```c++
+class Solution {
+public:
+    bool isBalanced(TreeNode* root) {
+        return getHeight(root) == -1 ? false : true;
+    }
+    int getHeight(TreeNode* root) {
+        if (!root) return 0;
+        int leftH = getHeight(root->left);
+        int rightH = getHeight(root->right);
+        if (leftH == -1 || rightH == -1) return -1;
+        return abs(leftH - rightH) > 1 ? -1 : 1 + max(leftH, rightH);
+    }
+};
+```
+
+```python
+class Solution:
+    def isBalanced(self, root: TreeNode) -> bool:
+        def getHeight(root: TreeNode) -> int:
+            if not root:
+                return 0
+            leftH = getHeight(root.left)
+            rightH = getHeight(root.right)
+            if leftH == -1 or rightH == -1:
+                return -1
+            return -1 if abs(leftH - rightH) > 1 else 1 + max(leftH, rightH)
+        return False if getHeight(root) == -1 else True
+```
+
