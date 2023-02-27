@@ -2278,3 +2278,170 @@ class Solution:
         return False if getHeight(root) == -1 else True
 ```
 
+# 第 19 天 搜索与回溯算法（中等）
+
+## 剑指 Offer 64. 求1+2+…+n
+
+求 `1+2+...+n` ，要求不能使用乘除法、for、while、if、else、switch、case等关键字及条件判断语句（A?B:C）。
+
+---
+
+### 与操作的性质实现判断
+
+```c++
+class Solution {
+public:
+    int sumNums(int n) {
+        n && (n += sumNums(n - 1));
+        return n;
+    }
+};
+```
+
+```python
+class Solution:
+    def sumNums(self, n: int) -> int:
+        n and (n := n + self.sumNums(n - 1))
+        return n
+```
+
+### 天秀方法
+
+```c++
+class Solution {
+public:
+    int sumNums(int n) {
+        return sizeof(bool[n] [n + 1]) >> 1;
+    }
+};
+```
+
+## 剑指 Offer 68 - I. 二叉搜索树的最近公共祖先
+
+给定一个二叉搜索树, 找到该树中两个指定节点的最近公共祖先。
+
+[百度百科](https://baike.baidu.com/item/最近公共祖先/8918834?fr=aladdin)中最近公共祖先的定义为：“对于有根树 T 的两个结点 p、q，最近公共祖先表示为一个结点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（**一个节点也可以是它自己的祖先**）。”
+
+例如，给定如下二叉搜索树: root = [6,2,8,0,4,7,9,null,null,3,5]
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/14/binarysearchtree_improved.png)
+
+---
+
+```c++
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if (!root) return root;
+        if (root->val > p->val && root->val > q->val) return lowestCommonAncestor(root->left, p, q);
+        else if (root->val < p->val && root->val < q->val) return lowestCommonAncestor(root->right, p, q);
+        else return root;
+    }
+};
+```
+
+```python
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        while root:
+            if root.val > p.val and root.val > q.val:
+                return self.lowestCommonAncestor(root.left, p, q)
+            elif root.val < p.val and root.val < q.val:
+                return self.lowestCommonAncestor(root.right, p, q)
+            else:
+                return root
+        return root
+```
+
+## 剑指 Offer 68 - II. 二叉树的最近公共祖先
+
+给定一个二叉树, 找到该树中两个指定节点的最近公共祖先。
+
+[百度百科](https://baike.baidu.com/item/最近公共祖先/8918834?fr=aladdin)中最近公共祖先的定义为：“对于有根树 T 的两个结点 p、q，最近公共祖先表示为一个结点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（**一个节点也可以是它自己的祖先**）。”
+
+例如，给定如下二叉树: root = [3,5,1,6,2,0,8,null,null,7,4]
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/15/binarytree.png)
+
+---
+
+### 递归
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if (!root || root->val == p->val || root->val == q->val) return root;
+        TreeNode* left = lowestCommonAncestor(root->left, p, q);
+        TreeNode* right = lowestCommonAncestor(root->right, p, q);
+        if (!left) return right;
+        if (!right) return left;
+        return root;
+    }
+};
+```
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def lowestCommonAncestor(self, root: TreeNode, p: TreeNode, q: TreeNode) -> TreeNode:
+        if not root or root == p or root == q: return root
+        left = self.lowestCommonAncestor(root.left, p, q)
+        right = self.lowestCommonAncestor(root.right, p, q)
+        if not left: return right
+        if not right: return left
+        return root
+```
+
+### dfs记录公共路径
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    vector<TreeNode*> st1, st2;
+    bool dfs(TreeNode* root, TreeNode* tar, vector<TreeNode*>& st) {
+        if (!root) return false;
+        st.push_back(root);
+        if (root->val == tar->val) return true;
+        if (dfs(root->left, tar, st) || dfs(root->right, tar, st)) return true;
+        st.pop_back();
+        return false;
+    }
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        dfs(root, p, st1);
+        dfs(root, q, st2);
+        int i = 0;
+        TreeNode* res;
+        while (i < st1.size() && i < st2.size() && st1[i] == st2[i]) {
+            res = st1[i];
+            i++;
+        }
+        return res;
+    }
+};
+```
+
